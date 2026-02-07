@@ -1,0 +1,343 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Todo List - Dark</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    html,body{height:100%}
+    body{
+      font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+      background: #0f1724;
+      color:#e6eef8;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:28px;
+    }
+
+    .wrap{
+      width:960px;
+      max-width:96%;
+      background: linear-gradient(180deg,#0b1220 0%, #0f1724 100%);
+      border-radius:12px;
+      box-shadow: 0 10px 40px rgba(2,6,23,0.7);
+      padding:22px;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+
+    header{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:18px;
+    }
+
+    header h1{
+      font-size:20px;
+      letter-spacing:0.2px;
+      color:#fff;
+    }
+
+    .controls{
+      display:flex;
+      gap:10px;
+      align-items:center;
+      margin-bottom:14px;
+      flex-wrap:wrap;
+    }
+
+    .input-task{
+      display:flex;
+      gap:8px;
+      align-items:center;
+      flex:1;
+      min-width:320px;
+    }
+
+    .input-task input[type="text"]{
+      background:#0b1220;
+      border:1px solid rgba(255,255,255,0.06);
+      color:#e6eef8;
+      padding:10px 12px;
+      border-radius:8px;
+      width:100%;
+    }
+
+    .input-task input[type="date"]{
+      background:#0b1220;
+      border:1px solid rgba(255,255,255,0.06);
+      color:#e6eef8;
+      padding:10px 12px;
+      border-radius:8px;
+    }
+
+    .btn{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06);
+      color:#e6eef8;
+      padding:10px 12px;
+      border-radius:8px;
+      cursor:pointer;
+      font-weight:600;
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+    }
+
+    .btn.primary{
+      background: linear-gradient(90deg,#06b6d4,#7c3aed);
+      border:0;
+      color:#fff;
+      box-shadow: 0 8px 24px rgba(124,58,237,0.12);
+    }
+
+    .btn.ghost{
+      background:transparent;
+      border:1px solid rgba(255,255,255,0.06);
+    }
+
+    .btn.danger{
+      background: linear-gradient(90deg,#ff7a7a,#ef4444);
+      border:0;
+      color:#fff;
+    }
+
+    .table-wrap{
+      margin-top:8px;
+      background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:10px;
+      padding:12px;
+      border:1px solid rgba(255,255,255,0.03);
+    }
+
+    table{
+      width:100%;
+      border-collapse:collapse;
+      color:#e6eef8;
+      font-size:14px;
+    }
+
+    thead th{
+      text-align:left;
+      padding:12px 10px;
+      color:#9fb0c8;
+      font-size:12px;
+      letter-spacing:0.6px;
+      text-transform:uppercase;
+    }
+
+    tbody td{
+      padding:12px 10px;
+      border-top:1px solid rgba(255,255,255,0.03);
+      vertical-align:middle;
+    }
+
+    .no-task{
+      text-align:center;
+      padding:28px 10px;
+      color:#9fb0c8;
+    }
+
+    .status{
+      display:inline-block;
+      padding:6px 10px;
+      border-radius:999px;
+      font-weight:700;
+      font-size:12px;
+    }
+
+    .status.pending{ background:rgba(255,255,255,0.03); color:#f8fafc; }
+    .status.done{ background:rgba(34,197,94,0.12); color:#86efac; border:1px solid rgba(34,197,94,0.12); }
+
+    .action-btn{
+      padding:8px 10px;
+      border-radius:8px;
+      border:1px solid rgba(255,255,255,0.04);
+      background:transparent;
+      color:#e6eef8;
+      cursor:pointer;
+      font-weight:600;
+    }
+
+    .row-right{ display:flex; gap:8px; align-items:center; }
+    .search{
+      min-width:200px;
+      background:#071022;
+      border:1px solid rgba(255,255,255,0.04);
+      padding:8px 10px;
+      border-radius:8px;
+      color:#cfe9ff;
+    }
+
+    .error{ color:#ffb4b4; font-size:13px; margin-top:6px; }
+
+    @media (max-width:760px){
+      header{flex-direction:column;align-items:flex-start;gap:10px}
+      .controls{flex-direction:column;align-items:stretch}
+      .row-right{width:100%;justify-content:space-between}
+      thead th{font-size:11px}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <h1>Todo List</h1>
+      <div class="row-right">
+        <input id="search" class="search" placeholder="Filter / search..." />
+        <button id="filterBtn" class="btn ghost">FILTER</button>
+        <button id="deleteAll" class="btn danger">DELETE ALL</button>
+      </div>
+    </header>
+
+    <div class="controls">
+      <div class="input-task">
+        <input id="taskInput" type="text" placeholder="Add a task..." />
+        <input id="dateInput" type="date" />
+      </div>
+
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="addBtn" class="btn primary">＋ Add</button>
+      </div>
+    </div>
+
+    <div id="err" class="error" style="display:none"></div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th style="width:45%">TASK</th>
+            <th style="width:20%">DUE DATE</th>
+            <th style="width:15%">STATUS</th>
+            <th style="width:20%">ACTION</th>
+          </tr>
+        </thead>
+        <tbody id="taskBody">
+          <tr class="no-task"><td colspan="4">No task found</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    const taskInput = document.getElementById('taskInput');
+    const dateInput = document.getElementById('dateInput');
+    const addBtn = document.getElementById('addBtn');
+    const taskBody = document.getElementById('taskBody');
+    const err = document.getElementById('err');
+    const deleteAll = document.getElementById('deleteAll');
+    const search = document.getElementById('search');
+
+    let todos = [];
+
+    const todayISO = () => {
+      const d = new Date(); d.setHours(0,0,0,0);
+      return d.toISOString().slice(0,10);
+    };
+
+    const save = () => localStorage.setItem('todo_dark', JSON.stringify(todos));
+    const load = () => {
+      try {
+        const raw = localStorage.getItem('todo_dark');
+        todos = raw ? JSON.parse(raw) : [];
+      } catch(e){ todos = []; }
+    };
+
+    const render = () => {
+      const q = (search.value || '').toLowerCase().trim();
+      taskBody.innerHTML = '';
+      const filtered = todos.filter(t => {
+        if (q && !t.title.toLowerCase().includes(q) && !t.due.toLowerCase().includes(q)) return false;
+        return true;
+      });
+
+      if (filtered.length === 0) {
+        taskBody.innerHTML = '<tr class="no-task"><td colspan="4">No task found</td></tr>';
+        return;
+      }
+
+      filtered.forEach(item => {
+        const tr = document.createElement('tr');
+
+        const tdTask = document.createElement('td');
+        tdTask.textContent = item.title;
+        tr.appendChild(tdTask);
+
+        const tdDate = document.createElement('td');
+        tdDate.textContent = item.due;
+        tr.appendChild(tdDate);
+
+        const tdStatus = document.createElement('td');
+        const span = document.createElement('span');
+        span.className = 'status ' + (item.done ? 'done' : 'pending');
+        span.textContent = item.done ? 'Done' : 'Pending';
+        tdStatus.appendChild(span);
+        tr.appendChild(tdStatus);
+
+        const tdAction = document.createElement('td');
+        tdAction.style.textAlign = 'right';
+
+        const toggleBtn = document.createElement('button');
+        toggleBtn.className = 'action-btn';
+        toggleBtn.textContent = item.done ? 'Mark Pending' : 'Mark Done';
+        toggleBtn.onclick = () => {
+          item.done = !item.done;
+          save(); render();
+        };
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'action-btn';
+        delBtn.style.marginLeft = '8px';
+        delBtn.textContent = 'Delete';
+        delBtn.onclick = () => {
+          todos = todos.filter(t => t.id !== item.id);
+          save(); render();
+        };
+
+        tdAction.appendChild(toggleBtn);
+        tdAction.appendChild(delBtn);
+        tr.appendChild(tdAction);
+
+        taskBody.appendChild(tr);
+      });
+    };
+
+    const validate = (title, due) => {
+      err.style.display = 'none';
+      if (!title) { err.textContent = 'Task cannot be empty'; err.style.display='block'; return false; }
+      if (!due) { err.textContent = 'Please choose a due date'; err.style.display='block'; return false; }
+      const sel = new Date(due); sel.setHours(0,0,0,0);
+      const now = new Date(); now.setHours(0,0,0,0);
+      if (sel < now) { err.textContent = 'Due date cannot be in the past'; err.style.display='block'; return false; }
+      return true;
+    };
+
+    addBtn.addEventListener('click', () => {
+      const title = taskInput.value.trim();
+      const due = dateInput.value;
+      if (!validate(title, due)) return;
+      todos.push({ id: Date.now().toString(), title, due, done:false });
+      save(); render();
+      taskInput.value=''; dateInput.value='';
+    });
+
+    deleteAll.addEventListener('click', () => {
+      if (!confirm('Delete all tasks?')) return;
+      todos = []; save(); render();
+    });
+
+    search.addEventListener('input', render);
+
+    load();
+    render();
+
+    taskInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') { e.preventDefault(); addBtn.click(); }
+    });
+  </script>
+</body>
+</html>
